@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SISTEMA LOJA PRAIA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body class="bg-slate-900 text-white p-4">
+    <div class="max-w-md mx-auto space-y-6">
+        <h1 class="text-2xl font-black text-center border-b border-blue-500 pb-2 italic">LOJA DO VOVÔ</h1>
+        
+        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg">
+            <h2 class="text-blue-400 font-bold mb-4 uppercase text-xs">1. Criar Etiqueta</h2>
+            <input type="text" id="prod" placeholder="Produto" class="w-full p-3 rounded bg-slate-700 mb-2 outline-none">
+            <input type="number" id="valor" placeholder="Preço R$" class="w-full p-3 rounded bg-slate-700 mb-4 outline-none">
+            <button onclick="gerar()" class="w-full bg-blue-600 p-3 rounded-lg font-bold">GERAR QR CODE</button>
+            <div id="qrarea" class="mt-4 flex flex-col items-center bg-white p-4 rounded-lg hidden text-black uppercase text-center"></div>
+        </div>
+
+        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-lg">
+            <h2 class="text-green-400 font-bold mb-4 uppercase text-xs">2. Scanner de Venda</h2>
+            <div id="reader" class="rounded-lg overflow-hidden border-2 border-slate-600"></div>
+            <div id="venda" class="mt-4 hidden p-4 bg-slate-700 rounded-lg text-center border-2 border-green-500">
+                <p id="info" class="text-xl font-black text-green-400"></p>
+                <button onclick="location.reload()" class="mt-4 bg-slate-600 p-2 w-full rounded font-bold">PRÓXIMA VENDA</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        function gerar() {
+            let n = document.getElementById('prod').value;
+            let v = document.getElementById('valor').value;
+            let div = document.getElementById('qrarea');
+            if(!n || !v) return alert("Preencha tudo!");
+            div.classList.remove('hidden');
+            div.innerHTML = `<div id="canvas"></div><p class="mt-2 font-bold">${n}</p><p class="text-2xl font-black text-green-700">R$ ${parseFloat(v).toFixed(2)}</p>`;
+            new QRCode(document.getElementById("canvas"), { text: n + "|" + v, width: 160, height: 160 });
+        }
+        let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
+        scanner.render((texto) => {
+            let dados = texto.split("|");
+            document.getElementById('venda').classList.remove('hidden');
+            document.getElementById('info').innerText = dados[0] + " - R$ " + parseFloat(dados[1]).toFixed(2);
+            scanner.clear();
+        });
+    </script>
+</body>
+</html>
