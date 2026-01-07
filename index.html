@@ -3,174 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA LOJA DO VOVÔ</title>
+    <title>SISTEMA LOJA DO VOVÔ - PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        #menu-lateral { transition: 0.3s; left: -100%; }
+        #menu-lateral { transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); left: -100%; }
         #menu-lateral.open { left: 0; }
-        @media imprimir {
+        .aba-conteudo { display: none; }
+        .aba-conteudo.ativa { display: block; }
+        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); }
+        @media print {
             .no-print { display: none !important; }
             #area-impressao { display: block !important; position: absolute; top: 0; left: 0; width: 100%; text-align: center; color: black; background: white; }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans overflow-x-hidden">
+<body class="bg-slate-900 text-white font-sans selection:bg-blue-500">
 
-    <div id="menu-lateral" class="fixed top-0 h-full w-64 bg-slate-800 z-50 p-5 shadow-2xl no-print">
-        <button onclick="toggleMenu()" class="mb-10 text-red-400 font-bold">X FECHAR</button>
-        <nav class="flex flex-col gap-6">
-            <button onclick="aba('etiqueta')" class="text-left text-xl hover:text-blue-400">🏷️ Gerar Etiqueta</button>
-            <button onclick="aba('venda')" class="text-left text-xl hover:text-green-400">🛒 Realizar Venda</button>
+    <div id="menu-lateral" class="fixed top-0 h-full w-72 bg-slate-800 z-50 p-6 shadow-2xl no-print border-r border-slate-700">
+        <button onclick="toggleMenu()" class="mb-10 text-red-400 font-bold flex items-center gap-2 hover:scale-105 transition-transform">
+            <span>✕</span> FECHAR MENU
+        </button>
+        <nav class="flex flex-col gap-4">
+            <button onclick="trocarAba('venda')" class="text-left text-lg font-bold p-4 hover:bg-blue-600 rounded-2xl flex items-center gap-3 transition-all shadow-lg">
+                <span>🛒</span> Frente de Caixa
+            </button>
+            <button onclick="trocarAba('etiqueta')" class="text-left text-lg font-bold p-4 hover:bg-slate-700 rounded-2xl flex items-center gap-3 transition-all">
+                <span>🏷️</span> Gerar Etiquetas
+            </button>
         </nav>
     </div>
 
-    <header class="bg-slate-800 p-4 flex items-center border-b border-slate-700 no-print">
-        <button onclick="toggleMenu()" class="p-2 hover:bg-slate-700 rounded-lg">
-            <div class="w-6 h-0.5 bg-white mb-1"></div>
-            <div class="w-6 h-0.5 bg-white mb-1"></div>
-            <div class="w-6 h-0.5 bg-white"></div>
+    <header class="bg-slate-800/80 backdrop-blur-md p-4 flex items-center border-b border-slate-700 no-print sticky top-0 z-40 shadow-xl">
+        <button onclick="toggleMenu()" class="p-3 hover:bg-slate-700 rounded-2xl transition-all active:scale-90">
+            <div class="w-7 h-1 bg-blue-400 mb-1 rounded-full"></div>
+            <div class="w-5 h-1 bg-blue-400 mb-1 rounded-full"></div>
+            <div class="w-7 h-1 bg-blue-400 rounded-full"></div>
         </button>
-        <h1 class="flex-1 text-center font-black italic text-xl tracking-tighter">LOJA DO VOVÔ</h1>
+        <h1 class="flex-1 text-center font-black italic text-2xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-green-400 uppercase">Loja do VoVô</h1>
     </header>
 
-    <main class="p-4 max-w-md mx-auto no-print">
-        <div id="aba-etiqueta" class="space-y-4">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl">
-                <h2 class="text-blue-400 font-bold mb-4 uppercase text-sm tracking-widest">1. Criar Etiqueta</h2>
-                <input type="text" id="prod-nome" placeholder="Produto" class="w-full p-4 bg-slate-700 rounded-xl mb-3 border-none focus:ring-2 focus:ring-blue-500">
-                <input type="number" id="prod-valor" placeholder="Preço R$" class="w-full p-4 bg-slate-700 rounded-xl mb-4 border-none focus:ring-2 focus:ring-blue-500">
-                <button onclick="gerarEtiqueta()" class="w-full bg-blue-500 hover:bg-blue-600 p-4 rounded-xl font-bold uppercase transition-all shadow-lg active:scale-95">Gerar QR Code</button>
+    <main class="p-4 max-w-4xl mx-auto no-print">
+        
+        <div id="aba-venda" class="aba-conteudo ativa grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="space-y-4">
+                <div class="bg-slate-800 p-4 rounded-3xl border border-slate-700 shadow-2xl">
+                    <div id="reader" class="rounded-2xl overflow-hidden border-2 border-slate-600 bg-black min-h-[300px] shadow-inner"></div>
+                    <div class="grid grid-cols-2 gap-3 mt-4">
+                        <button onclick="ligarCamera('user')" class="bg-slate-700 p-4 rounded-2xl text-xs font-black uppercase hover:bg-slate-600 transition-all">📸 Selfie</button>
+                        <button onclick="ligarCamera('environment')" class="bg-blue-600 p-4 rounded-2xl text-xs font-black uppercase hover:bg-blue-500 transition-all shadow-lg">📷 Traseira</button>
+                    </div>
+                </div>
+
+                <div id="box-scan-resultado" class="hidden bg-gradient-to-br from-blue-600 to-blue-800 p-6 rounded-3xl shadow-2xl animate-bounce-short">
+                    <h3 id="scan-nome" class="text-xl font-bold uppercase truncate"></h3>
+                    <p id="scan-preco" class="text-4xl font-black mb-4"></p>
+                    <button onclick="adicionarAoCarrinho()" class="w-full bg-white text-blue-800 p-4 rounded-2xl font-black uppercase hover:bg-green-400 hover:text-white transition-all">➕ Adicionar Item</button>
+                </div>
             </div>
 
-            <div id="visualizar-etiqueta" class="hidden bg-white p-6 rounded-2xl text-black text-center shadow-2xl border-4 border-blue-500">
-                <div id="et-qrcode" class="flex justify-center mb-4"></div>
-                <h3 id="et-nome" class="font-bold uppercase text-xl"></h3>
-                <p id="et-preco" class="text-3xl font-black text-green-600"></p>
-                <button onclick="window.print()" class="mt-4 bg-slate-900 text-white px-6 py-2 rounded-full font-bold">🖨️ IMPRIMIR AGORA</button>
+            <div class="space-y-4">
+                <div class="bg-slate-800 p-6 rounded-3xl border border-slate-700 shadow-2xl flex flex-col h-full min-h-[400px]">
+                    <h2 class="text-green-400 font-black mb-4 uppercase text-sm tracking-widest flex justify-between">
+                        <span>Carrinho de Compras</span>
+                        <span id="itens-count">0 itens</span>
+                    </h2>
+                    
+                    <div id="lista-carrinho" class="flex-1 overflow-y-auto space-y-2 mb-4 max-h-[300px] pr-2">
+                        <p class="text-slate-500 italic text-center mt-10">Escaneie um produto para começar...</p>
+                    </div>
+
+                    <div class="border-t border-slate-700 pt-4">
+                        <div class="flex justify-between items-end mb-4">
+                            <span class="text-slate-400 font-bold">TOTAL:</span>
+                            <span id="total-venda" class="text-5xl font-black text-green-400 tracking-tighter text-right">R$ 0,00</span>
+                        </div>
+
+                        <div class="space-y-3">
+                            <select id="pagamento" onchange="checkDinheiro()" class="w-full p-4 bg-slate-900 rounded-2xl font-bold border-2 border-slate-700 focus:border-blue-500 outline-none">
+                                <option value="pix">📱 PIX</option>
+                                <option value="cartao">💳 CARTÃO</option>
+                                <option value="dinheiro">💵 DINHEIRO</option>
+                            </select>
+
+                            <div id="calc-troco" class="hidden bg-slate-900 p-4 rounded-2xl border border-blue-500/30">
+                                <input type="number" id="valor-recebido" placeholder="Quanto o cliente deu?" class="w-full bg-transparent text-2xl font-black text-blue-400 outline-none">
+                                <p id="troco-resultado" class="mt-2 font-bold text-center text-sm uppercase"></p>
+                            </div>
+
+                            <button onclick="finalizarVenda()" class="w-full bg-green-500 text-white p-5 rounded-2xl font-black uppercase shadow-lg hover:bg-green-400 transition-all active:scale-95">FECHAR PEDIDO</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div id="aba-venda" class="hidden space-y-4">
-            <div class="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-xl text-center">
-                <h2 class="text-green-400 font-bold mb-4 uppercase text-sm tracking-widest">2. Scanner de Venda</h2>
-                <div id="reader" class="rounded-xl overflow-hidden border-2 border-slate-600 bg-black min-h-[250px]"></div>
-                <div class="flex gap-2 mt-4">
-                    <button onclick="ligarCamera('user')" class="flex-1 bg-slate-700 p-2 rounded-lg text-xs uppercase font-bold">Câmera Frente</button>
-                    <button onclick="ligarCamera('environment')" class="flex-1 bg-blue-600 p-2 rounded-lg text-xs uppercase font-bold">Câmera Traseira</button>
+        <div id="aba-etiqueta" class="aba-conteudo space-y-4 max-w-xl mx-auto">
+            <div class="bg-slate-800 p-8 rounded-3xl border border-slate-700 shadow-2xl">
+                <h2 class="text-blue-400 font-black mb-6 uppercase text-sm tracking-widest">Gerador de Etiquetas</h2>
+                <div class="space-y-4">
+                    <input type="text" id="prod-nome" placeholder="Nome do Produto" class="w-full p-5 bg-slate-900 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-bold text-lg">
+                    <input type="number" id="prod-valor" placeholder="Preço R$" class="w-full p-5 bg-slate-900 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-black text-3xl text-green-400">
+                    <button onclick="gerarEtiqueta()" class="w-full bg-blue-500 p-5 rounded-2xl font-black uppercase shadow-lg hover:bg-blue-400 transition-all">CRIAR QR CODE</button>
                 </div>
             </div>
 
-            <div id="box-pagamento" class="hidden bg-slate-800 p-6 rounded-2xl border-2 border-green-500 shadow-2xl animate-bounce-short">
-                <div class="text-center mb-4">
-                    <h3 id="venda-nome" class="text-xl font-bold uppercase text-slate-400"></h3>
-                    <p id="venda-preco" class="text-4xl font-black text-green-400"></p>
-                </div>
-                
-                <label class="block text-xs font-bold text-slate-500 mb-2 uppercase">Forma de Pagamento:</label>
-                <select id="pagamento" onchange="checkDinheiro()" class="w-full p-4 bg-slate-700 rounded-xl mb-4 border-none">
-                    <option value="pix">PIX</option>
-                    <option value="cartao">CARTÃO</option>
-                    <option value="dinheiro">DINHEIRO</option>
-                </select>
-
-                <div id="calc-troco" class="hidden bg-slate-900 p-4 rounded-xl mb-4">
-                    <input type="number" id="valor-recebido" placeholder="Quanto o cliente deu?" class="w-full p-3 bg-slate-800 rounded-lg text-green-400 font-bold text-xl mb-2 border-none">
-                    <p id="troco-resultado" class="text-center font-bold text-lg text-blue-400 italic">CALCULANDO TROCO...</p>
-                </div>
-
-                <button onclick="finalizarVenda()" class="w-full bg-green-500 hover:bg-green-600 p-4 rounded-xl font-bold uppercase shadow-lg">Finalizar e Receber</button>
+            <div id="visualizar-etiqueta" class="hidden bg-white p-8 rounded-3xl text-black text-center shadow-2xl border-4 border-slate-200 flex flex-col items-center animate-fade-in">
+                <div id="et-qrcode" class="mb-4"></div>
+                <h3 id="et-nome" class="font-black uppercase text-2xl mb-1"></h3>
+                <p id="et-preco" class="text-7xl font-black text-slate-900 tracking-tighter mb-6"></p>
+                <button onclick="window.print()" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase flex items-center justify-center gap-3">
+                    <span>🖨️</span> IMPRIMIR AGORA
+                </button>
             </div>
         </div>
     </main>
 
     <div id="area-impressao" class="hidden">
-        <div style="border: 1px solid black; padding: 10px; display: inline-block;">
-            <h2 id="print-nome" style="font-size: 20px; margin: 0; font-family: sans-serif; text-transform: uppercase;"></h2>
-            <div id="print-qrcode" style="display: flex; justify-content: center; margin: 5px 0;"></div>
-            <p style="font-size: 14px; margin: 0;">PREÇO R$</p>
-            <strong id="print-preco" style="font-size: 32px; font-family: sans-serif;"></strong>
+        <div style="border: 4px solid black; padding: 40px; display: inline-block; border-radius: 20px;">
+            <h2 id="print-nome" style="font-size: 30pt; font-family: sans-serif; font-weight: 900; text-transform: uppercase; margin: 0;"></h2>
+            <div id="print-qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
+            <strong id="print-preco" style="font-size: 80pt; font-family: sans-serif; font-weight: 900; line-height: 0.8;"></strong>
         </div>
     </div>
 
     <script>
-        let scanner;
-        let vAtual = 0;
+        let html5QrCode;
+        let carrinho = [];
+        let itemScaneado = null;
 
-        function toggleMenu() {
-            document.getElementById('menu-lateral').classList.toggle('open');
-        }
+        function toggleMenu() { document.getElementById('menu-lateral').classList.toggle('open'); }
 
-        function aba(id) {
-            document.getElementById('aba-venda').classList.add('hidden');
-            document.getElementById('aba-etiqueta').classList.add('hidden');
-            document.getElementById('aba-' + id).classList.remove('hidden');
-            if (scanner) scanner.clear(); // Desliga a câmera ao trocar de aba
-            if(id === 'venda') document.getElementById('box-pagamento').classList.add('hidden');
+        async function trocarAba(id) {
+            document.querySelectorAll('.aba-conteudo').forEach(a => a.classList.remove('ativa'));
+            document.getElementById('aba-' + id).classList.add('ativa');
+            if (html5QrCode && html5QrCode.isScanning) await html5QrCode.stop();
+            if (id === 'venda') ligarCamera('environment');
             toggleMenu();
         }
 
-        function ligarCamera(modo) {
-            if (scanner) scanner.clear();
-            scanner = new Html5QrcodeScanner("reader", { 
-                fps: 20, 
-                qrbox: { width: 250, height: 250 } 
-            });
+        async function ligarCamera(modo) {
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            if (html5QrCode.isScanning) await html5QrCode.stop();
             
-            scanner.render((texto) => {
+            html5QrCode.start({ facingMode: modo }, { fps: 20, qrbox: 250 }, (texto) => {
                 let dados = texto.split("|");
                 if(dados.length < 2) return;
 
-                vAtual = parseFloat(dados[1]);
-                document.getElementById('venda-nome').innerText = dados[0];
-                document.getElementById('venda-preco').innerText = "R$ " + vAtual.toFixed(2);
-                document.getElementById('box-pagamento').classList.remove('hidden');
+                itemScaneado = { nome: dados[0], preco: parseFloat(dados[1]) };
+                document.getElementById('scan-nome').innerText = itemScaneado.nome;
+                document.getElementById('scan-preco').innerText = "R$ " + itemScaneado.preco.toFixed(2);
+                document.getElementById('box-scan-resultado').classList.remove('hidden');
                 
-                // Correção do erro da foto: parar apenas a leitura, não o elemento
-                scanner.clear().catch(e => console.log("Erro ao limpar:", e));
-                window.scrollTo(0, document.body.scrollHeight);
+                // Feedback visual de sucesso
+                navigator.vibrate(100);
             });
         }
+
+        function adicionarAoCarrinho() {
+            if (!itemScaneado) return;
+            carrinho.push(itemScaneado);
+            itemScaneado = null;
+            document.getElementById('box-scan-resultado').classList.add('hidden');
+            atualizarCarrinho();
+        }
+
+        function atualizarCarrinho() {
+            const lista = document.getElementById('lista-carrinho');
+            const totalDisplay = document.getElementById('total-venda');
+            const countDisplay = document.getElementById('itens-count');
+            
+            lista.innerHTML = "";
+            let total = 0;
+
+            carrinho.forEach((item, index) => {
+                total += item.preco;
+                lista.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-700/50 p-3 rounded-xl border border-slate-600 animate-fade-in">
+                        <div>
+                            <p class="text-xs font-bold text-blue-400 uppercase">#${index + 1}</p>
+                            <p class="font-bold">${item.nome}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-black text-green-400">R$ ${item.preco.toFixed(2)}</span>
+                            <button onclick="removerItem(${index})" class="text-red-400 p-2 hover:bg-red-500/20 rounded-lg">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            totalDisplay.innerText = "R$ " + total.toFixed(2);
+            countDisplay.innerText = carrinho.length + " itens";
+            
+            if(carrinho.length === 0) {
+                lista.innerHTML = '<p class="text-slate-500 italic text-center mt-10">Carrinho vazio...</p>';
+            }
+        }
+
+        function removerItem(index) {
+            carrinho.splice(index, 1);
+            atualizarCarrinho();
+        }
+
+        function checkDinheiro() {
+            document.getElementById('calc-troco').classList.toggle('hidden', document.getElementById('pagamento').value !== 'dinheiro');
+        }
+
+        document.getElementById('valor-recebido').addEventListener('input', function() {
+            let total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+            let rec = parseFloat(this.value) || 0;
+            let res = document.getElementById('troco-resultado');
+            if(rec >= total) {
+                res.innerText = "Troco: R$ " + (rec - total).toFixed(2);
+                res.style.color = "#4ade80";
+            } else {
+                res.innerText = "Valor insuficiente";
+                res.style.color = "#f87171";
+            }
+        });
 
         function gerarEtiqueta() {
             let n = document.getElementById('prod-nome').value;
             let v = document.getElementById('prod-valor').value;
-            if(!n || !v) return alert("Preencha o nome e o valor!");
+            if(!n || !v) return alert("Preencha tudo!");
             
             document.getElementById('visualizar-etiqueta').classList.remove('hidden');
             document.getElementById('et-nome').innerText = n;
             document.getElementById('et-preco').innerText = "R$ " + parseFloat(v).toFixed(2);
+            
             document.getElementById('et-qrcode').innerHTML = "";
             new QRCode(document.getElementById("et-qrcode"), { text: n + "|" + v, width: 200, height: 200 });
 
             document.getElementById('print-nome').innerText = n;
             document.getElementById('print-preco').innerText = parseFloat(v).toFixed(2);
             document.getElementById('print-qrcode').innerHTML = "";
-            new QRCode(document.getElementById("print-qrcode"), { text: n + "|" + v, width: 250, height: 250 });
+            new QRCode(document.getElementById("print-qrcode"), { text: n + "|" + v, width: 300, height: 300 });
         }
-
-        function checkDinheiro() {
-            let p = document.getElementById('pagamento').value;
-            document.getElementById('calc-troco').classList.toggle('hidden', p !== 'dinheiro');
-        }
-
-        document.getElementById('valor-recebido').addEventListener('input', function() {
-            let rec = parseFloat(this.value) || 0;
-            let resultBox = document.getElementById('troco-resultado');
-            if(rec >= vAtual) {
-                resultBox.innerText = "TROCO: R$ " + (rec - vAtual).toFixed(2);
-                resultBox.style.color = "#60a5fa";
-            } else {
-                resultBox.innerText = "VALOR INSUFICIENTE";
-                resultBox.style.color = "#f87171";
-            }
-        });
 
         function finalizarVenda() {
-            alert("Venda de " + document.getElementById('venda-nome').innerText + " finalizada com sucesso!");
+            if(carrinho.length === 0) return alert("Carrinho vazio!");
+            alert("Venda de R$ " + carrinho.reduce((a,b) => a + b.preco, 0).toFixed(2) + " finalizada!");
+            carrinho = [];
+            atualizarCarrinho();
             location.reload();
         }
+
+        window.onload = () => ligarCamera('environment');
     </script>
 </body>
 </html>
