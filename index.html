@@ -3,154 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SISTEMA LOJA DO VOVÔ</title>
+    <title>SISTEMA UPA VET</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
-        /* Animação do Menu Lateral */
-        #menu-lateral { transition: 0.3s; left: -100%; }
+        /* FONTE E CORES GERAIS */
+        body { background-color: #f0f9ff; color: #1e293b; font-family: 'Segoe UI', sans-serif; }
+
+        /* MENU LATERAL */
+        #menu-lateral { transition: 0.3s; left: -100%; z-index: 50; }
         #menu-lateral.abrir { left: 0; }
         
-        /* Controle de Abas */
-        .aba-conteudo { display: none; }
+        /* CONTROLE DE ABAS */
+        .aba-conteudo { display: none; animation: fadeIn 0.5s; }
         .aba-conteudo.ativa { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* ESTILOS DE IMPRESSÃO (Só funcionam na hora de imprimir) */
+        /* IMPRESSÃO (Etiqueta Física) */
         @media print {
-            /* Esconde tudo que não é a etiqueta */
             body * { visibility: hidden; }
             #area-etiqueta, #area-etiqueta * { visibility: visible; }
-            
-            /* Posiciona a etiqueta no topo da folha */
             #area-etiqueta { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                display: flex !important;
-                justify-content: center;
-                align-items: center;
+                position: absolute; left: 0; top: 0; width: 100%; 
+                display: flex !important; justify-content: center; align-items: center;
+                background: white;
             }
-
-            /* Escalas de Tamanho Real */
-            .print-pequeno { transform: scale(0.6); } /* Chaveiros */
-            .print-medio { transform: scale(1.0); }   /* Padrão */
-            .print-grande { transform: scale(1.5); }  /* Caixas grandes */
-            .print-sem { display: none !important; }  /* Sem etiqueta */
+            /* Esconde botões na impressão */
+            button { display: none !important; }
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white font-sans overflow-x-hidden">
+<body class="overflow-x-hidden">
 
-    <header class="bg-slate-800 p-4 shadow-lg flex items-center justify-between sticky top-0 z-50">
-        <button onclick="toggleMenu()" class="text-white text-2xl focus:outline-none">
-            &#9776; </button>
-        <h1 class="text-xl font-bold italic tracking-wider">LOJA DO VOVÔ</h1>
-        <div class="w-8"></div> </header>
+    <header class="bg-teal-600 text-white p-4 shadow-md flex items-center justify-between sticky top-0 z-40">
+        <button onclick="toggleMenu()" class="text-2xl focus:outline-none hover:text-teal-200 transition">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-user-doctor text-xl"></i>
+            <h1 class="text-lg font-bold tracking-wide">UPA VET <span class="text-xs font-normal opacity-75">DIGITAL</span></h1>
+        </div>
+        <div class="w-8"></div>
+    </header>
 
-    <nav id="menu-lateral" class="fixed top-0 bottom-0 w-64 bg-slate-800 shadow-2xl z-50 p-6 flex flex-col border-r border-slate-700">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-xl font-bold text-blue-400">MENU</h2>
-            <button onclick="toggleMenu()" class="text-red-400 font-bold">X FECHAR</button>
+    <nav id="menu-lateral" class="fixed top-0 bottom-0 w-72 bg-white shadow-2xl p-6 flex flex-col border-r border-gray-200">
+        <div class="flex justify-between items-center mb-10 border-b pb-4">
+            <h2 class="text-xl font-bold text-teal-700">NAVEGAÇÃO</h2>
+            <button onclick="toggleMenu()" class="text-gray-400 hover:text-red-500 font-bold"><i class="fa-solid fa-times"></i></button>
         </div>
         
-        <button onclick="mudarAba('etiqueta')" class="text-left py-4 border-b border-slate-700 hover:text-blue-400 flex items-center gap-3 text-lg font-medium">
-            🏷️ Etiqueta
+        <button onclick="mudarAba('cadastro')" class="text-left py-4 px-2 hover:bg-teal-50 hover:text-teal-600 rounded-lg transition flex items-center gap-3 text-lg font-medium text-gray-600">
+            <i class="fa-solid fa-id-card"></i> Novo Paciente (QR)
         </button>
-        <button onclick="mudarAba('venda')" class="text-left py-4 border-b border-slate-700 hover:text-blue-400 flex items-center gap-3 text-lg font-medium">
-            🛒 Venda
+        <button onclick="mudarAba('leitor')" class="text-left py-4 px-2 hover:bg-teal-50 hover:text-teal-600 rounded-lg transition flex items-center gap-3 text-lg font-medium text-gray-600">
+            <i class="fa-solid fa-qrcode"></i> Leitor / Ficha
         </button>
     </nav>
 
-    <main class="p-4 max-w-md mx-auto mt-4">
+    <main class="p-4 max-w-md mx-auto mt-2">
 
-        <div id="aba-etiqueta" class="aba-conteudo ativa">
-            <div class="bg-slate-800 rounded-2xl p-6 shadow-xl border border-slate-700">
-                <h2 class="text-center text-blue-400 text-xs font-bold mb-4 tracking-widest uppercase">Gerador de Etiqueta Profissional</h2>
+        <div id="aba-cadastro" class="aba-conteudo ativa">
+            <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+                <h2 class="text-center text-teal-600 text-sm font-bold mb-6 uppercase tracking-widest border-b pb-2">Cadastro de Identificação</h2>
                 
-                <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="space-y-4">
                     <div>
-                        <label class="block text-gray-400 text-xs font-bold mb-1 ml-1">PRODUTO</label>
-                        <input type="text" id="produto-nome" placeholder="Ex: Boia" 
-                            class="w-full bg-slate-700 text-white border-none rounded-lg p-3 focus:ring-2 focus:ring-blue-500 font-bold shadow-inner">
+                        <label class="block text-gray-500 text-xs font-bold mb-1 uppercase">Nome do Pet</label>
+                        <input type="text" id="pet-nome" placeholder="Ex: Thor" 
+                            class="w-full bg-slate-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-teal-500 font-bold text-gray-700">
                     </div>
-                    <div>
-                        <label class="block text-gray-400 text-xs font-bold mb-1 ml-1">PREÇO R$</label>
-                        <input type="number" id="produto-preco" placeholder="0.00" 
-                            class="w-full bg-slate-700 text-white border-none rounded-lg p-3 focus:ring-2 focus:ring-blue-500 font-bold shadow-inner text-lg">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-500 text-xs font-bold mb-1 uppercase">Espécie</label>
+                            <select id="pet-tipo" class="w-full bg-slate-50 border border-gray-200 rounded-lg p-3 font-bold text-gray-700">
+                                <option value="Cão">🐶 Cão</option>
+                                <option value="Gato">🐱 Gato</option>
+                                <option value="Outro">🐾 Outro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-500 text-xs font-bold mb-1 uppercase">Celular Tutor</label>
+                            <input type="tel" id="pet-zap" placeholder="(13) 9..." 
+                                class="w-full bg-slate-50 border border-gray-200 rounded-lg p-3 focus:outline-none focus:border-teal-500 font-bold text-gray-700">
+                        </div>
                     </div>
                 </div>
 
-                <div class="mb-6">
-                    <label class="block text-gray-400 text-xs font-bold mb-2 ml-1">TAMANHO DA ETIQUETA:</label>
-                    <div class="grid grid-cols-2 gap-2"> <button id="btn-pequeno" onclick="selecionarTamanho('pequeno')" 
-                            class="btn-tam bg-slate-700 text-gray-400 py-3 rounded-lg text-xs font-bold hover:bg-slate-600 transition border border-slate-600">
-                            (Pequeno)
-                        </button>
-                        
-                        <button id="btn-medio" onclick="selecionarTamanho('medio')" 
-                            class="btn-tam bg-blue-600 text-white py-3 rounded-lg text-xs font-bold shadow-lg ring-2 ring-blue-400 transition transform scale-105">
-                            (Médio)
-                        </button>
-                        
-                        <button id="btn-grande" onclick="selecionarTamanho('grande')" 
-                            class="btn-tam bg-slate-700 text-gray-400 py-3 rounded-lg text-xs font-bold hover:bg-slate-600 transition border border-slate-600">
-                            (Grande)
-                        </button>
-                        
-                        <button id="btn-sem" onclick="selecionarTamanho('sem')" 
-                            class="btn-tam bg-slate-700 text-gray-400 py-3 rounded-lg text-xs font-bold hover:bg-slate-600 transition border border-slate-600">
-                            (Sem Etiqueta)
-                        </button>
-                    </div>
-                </div>
-
-                <button onclick="gerarEtiqueta()" class="w-full bg-blue-500 hover:bg-blue-400 text-white font-bold py-4 rounded-xl shadow-lg transition active:scale-95 text-lg uppercase tracking-wide">
-                    Gerar QR Code
+                <button onclick="gerarIdentidade()" class="mt-6 w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl shadow-lg transition transform active:scale-95 flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-print"></i> GERAR IDENTIDADE
                 </button>
             </div>
 
-            <div id="area-etiqueta" class="mt-8 bg-white text-black p-6 rounded-xl hidden flex-col items-center shadow-2xl mx-auto w-64 print-medio">
-                <div class="text-center w-full">
-                    <h3 id="lbl-nome" class="font-black text-2xl uppercase mb-1 leading-none">NOME</h3>
-                    <p class="text-sm text-gray-600 font-bold mb-2">Loja do Vovô</p>
+            <div id="area-etiqueta" class="hidden mt-8 flex-col items-center animate-pulse-once">
+                <div class="bg-white border-2 border-black p-4 rounded-lg text-center w-64 shadow-xl">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <i class="fa-solid fa-paw text-2xl"></i>
+                        <h3 class="font-black text-xl uppercase tracking-tighter">UPA VET</h3>
+                    </div>
                     
-                    <div id="qrcode-container" class="flex justify-center my-2"></div>
+                    <div id="qrcode-container" class="flex justify-center border border-gray-200 p-2 rounded mb-2"></div>
                     
-                    <p id="lbl-preco" class="text-3xl font-black mt-1">R$ 0,00</p>
+                    <h3 id="lbl-nome" class="font-black text-2xl text-black uppercase leading-none">NOME</h3>
+                    <p id="lbl-zap" class="text-sm font-bold text-gray-800 mt-1">Contato</p>
+                    <p class="text-[10px] text-gray-500 mt-2">Identificação Digital Peruíbe</p>
                 </div>
+                
+                <button onclick="window.print()" class="mt-4 bg-gray-800 text-white px-6 py-2 rounded-full font-bold text-sm shadow hover:bg-black transition">
+                    🖨️ Imprimir Etiqueta
+                </button>
             </div>
-            
-            <button id="btn-imprimir" onclick="window.print()" class="hidden w-full mt-4 bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg shadow transition">
-                🖨️ Imprimir Etiqueta
-            </button>
         </div>
 
-        <div id="aba-venda" class="aba-conteudo">
-            <div class="bg-slate-800 rounded-2xl p-4 shadow-xl border border-slate-700 mb-4">
-                <h2 class="text-center text-blue-400 text-xs font-bold mb-4 tracking-widest uppercase">Leitor de Caixa</h2>
-                
-                <div id="reader" class="w-full rounded-lg overflow-hidden border-2 border-slate-600 bg-black"></div>
-                <p id="status-camera" class="text-center text-xs text-gray-400 mt-2">Aponte para o código do produto</p>
+        <div id="aba-leitor" class="aba-conteudo">
+            <div class="bg-white rounded-2xl p-4 shadow-lg border border-gray-100 mb-6">
+                <h2 class="text-center text-teal-600 text-xs font-bold mb-2 uppercase">Scanner de Recepção</h2>
+                <div id="reader" class="w-full rounded-lg overflow-hidden bg-black border-4 border-teal-500"></div>
+                <p class="text-center text-xs text-gray-400 mt-2 animate-pulse">Aguardando leitura do QR Code...</p>
             </div>
 
-            <div class="bg-white rounded-t-2xl p-4 min-h-[300px] text-slate-900 shadow-2xl">
-                <div class="flex justify-between items-center mb-4 border-b pb-2">
-                    <h3 class="font-black text-lg uppercase">Carrinho</h3>
-                    <button onclick="limparCarrinho()" class="text-xs text-red-500 font-bold underline">Limpar Tudo</button>
-                </div>
-
-                <div id="lista-compras" class="space-y-2 max-h-64 overflow-y-auto">
-                    <p class="text-center text-gray-400 text-sm mt-10 italic">Nenhum produto bipado...</p>
-                </div>
-            </div>
-
-            <div class="fixed bottom-0 left-0 w-full bg-slate-900 p-4 border-t border-slate-700 shadow-2xl z-40">
-                <div class="flex justify-between items-center max-w-md mx-auto">
-                    <span class="text-gray-400 font-bold">TOTAL A PAGAR:</span>
-                    <span id="total-venda" class="text-3xl font-black text-green-400">R$ 0.00</span>
+            <div id="ficha-paciente" class="hidden">
+                <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                    <div class="bg-teal-600 p-4 text-white flex justify-between items-center">
+                        <h3 class="font-bold text-lg"><i class="fa-solid fa-file-medical"></i> PACIENTE LOCALIZADO</h3>
+                        <span id="ficha-hora" class="text-xs bg-teal-800 px-2 py-1 rounded">Agora</span>
+                    </div>
+                    <div class="p-6 text-center">
+                        <div class="w-20 h-20 bg-teal-100 rounded-full mx-auto flex items-center justify-center text-4xl mb-4 text-teal-600">
+                            <i id="ficha-icone" class="fa-solid fa-dog"></i>
+                        </div>
+                        <h2 id="ficha-nome" class="text-3xl font-black text-gray-800 uppercase mb-1">REX</h2>
+                        <p id="ficha-tipo" class="text-gray-500 font-medium uppercase text-sm mb-6">Canino - Sem Raça Definida</p>
+                        
+                        <div class="bg-red-50 border border-red-100 rounded-lg p-4">
+                            <p class="text-xs text-red-400 font-bold uppercase mb-1">Contato de Emergência</p>
+                            <a id="ficha-zap-link" href="#" class="text-2xl font-bold text-red-600 hover:text-red-800 flex items-center justify-center gap-2">
+                                <i class="fa-brands fa-whatsapp"></i> <span id="ficha-zap">...</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 p-4 text-center border-t border-gray-100">
+                        <button onclick="resetarLeitura()" class="text-teal-600 font-bold text-sm hover:underline">Nova Leitura</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -158,192 +155,113 @@
     </main>
 
     <script>
-        // --- VARIÁVEIS DO SISTEMA ---
-        let carrinho = [];
-        let html5QrcodeScanner = null;
-        let bloqueioLeitura = false; // TRAVA DE SEGURANÇA (Para evitar scanner louco)
-        let tamanhoSelecionado = 'medio';
+        // CONFIGURAÇÕES GERAIS
+        let scanner = null;
+        let bloqueio = false;
 
-        // --- 1. LÓGICA DE MENU E ABAS ---
         function toggleMenu() {
             document.getElementById('menu-lateral').classList.toggle('abrir');
         }
 
         function mudarAba(aba) {
-            // Fecha menu
             document.getElementById('menu-lateral').classList.remove('abrir');
-            
-            // Troca conteúdo
             document.querySelectorAll('.aba-conteudo').forEach(el => el.classList.remove('ativa'));
             document.getElementById(`aba-${aba}`).classList.add('ativa');
 
-            // Gerencia a câmera (Só liga na aba Venda)
-            if (aba === 'venda') {
+            if(aba === 'leitor') {
                 iniciarCamera();
             } else {
                 pararCamera();
             }
         }
 
-        // --- 2. LÓGICA DE ETIQUETAS (Visual e Tamanho) ---
-        function selecionarTamanho(tamanho) {
-            tamanhoSelecionado = tamanho;
-
-            // Reseta cor de todos os botões para cinza
-            document.querySelectorAll('.btn-tam').forEach(btn => {
-                btn.className = "btn-tam bg-slate-700 text-gray-400 py-3 rounded-lg text-xs font-bold hover:bg-slate-600 transition border border-slate-600";
-            });
-
-            // Pinta o botão escolhido de AZUL (Destaque Visual)
-            const btnAtivo = document.getElementById(`btn-${tamanho}`);
-            if(btnAtivo) {
-                btnAtivo.className = "btn-tam bg-blue-600 text-white py-3 rounded-lg text-xs font-bold shadow-lg ring-2 ring-blue-400 transition transform scale-105";
-            }
-
-            // Ajusta classe de impressão (CSS)
-            const areaEtiqueta = document.getElementById('area-etiqueta');
-            areaEtiqueta.classList.remove('print-pequeno', 'print-medio', 'print-grande', 'print-sem');
-            areaEtiqueta.classList.add(`print-${tamanho}`);
-        }
-
-        function gerarEtiqueta() {
-            const nome = document.getElementById('produto-nome').value;
-            const preco = document.getElementById('produto-preco').value;
+        // --- LÓGICA 1: GERAR IDENTIDADE ---
+        function gerarIdentidade() {
+            const nome = document.getElementById('pet-nome').value;
+            const tipo = document.getElementById('pet-tipo').value;
+            const zap = document.getElementById('pet-zap').value;
             
-            if (!nome || !preco) {
-                alert("Opa! Esqueceu de preencher o nome ou preço.");
+            if(!nome || !zap) {
+                alert("Por favor, preencha Nome e Contato do Tutor.");
                 return;
             }
 
-            // Preenche visual
+            // Atualiza Preview Visual
             document.getElementById('lbl-nome').innerText = nome;
-            document.getElementById('lbl-preco').innerText = `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}`;
+            document.getElementById('lbl-zap').innerText = zap;
 
-            // Gera QR Code
+            // Gera QR Code (JSON Estruturado)
             const areaQr = document.getElementById('qrcode-container');
-            areaQr.innerHTML = ""; // Limpa anterior
+            areaQr.innerHTML = "";
             
-            // Dados comprimidos para o QR (n=nome, p=preço)
-            const dados = JSON.stringify({ n: nome, p: preco });
+            const dados = JSON.stringify({ n: nome, t: tipo, z: zap });
             
             new QRCode(areaQr, {
                 text: dados,
-                width: 128,
-                height: 128,
+                width: 120,
+                height: 120,
                 colorDark : "#000000",
                 colorLight : "#ffffff",
                 correctLevel : QRCode.CorrectLevel.H
             });
 
-            // Mostra resultado
             document.getElementById('area-etiqueta').classList.remove('hidden');
             document.getElementById('area-etiqueta').classList.add('flex');
-            document.getElementById('btn-imprimir').classList.remove('hidden');
         }
 
-        // --- 3. LÓGICA DE VENDAS (Correção do Scanner) ---
+        // --- LÓGICA 2: LEITOR INTELIGENTE ---
         function iniciarCamera() {
-            if (html5QrcodeScanner) return; // Já está ligada
-
-            html5QrcodeScanner = new Html5Qrcode("reader");
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            
-            html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess)
-            .catch(err => {
-                document.getElementById('status-camera').innerText = "Erro: Câmera não permitida";
-            });
+            if(scanner) return;
+            scanner = new Html5Qrcode("reader");
+            scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScan);
         }
 
         function pararCamera() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                }).catch(err => console.log("Erro ao parar câmera"));
+            if(scanner) {
+                scanner.stop().then(() => { scanner.clear(); scanner = null; });
             }
         }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            // [CORREÇÃO IMPORTANTE] A TRAVA DE LEITURA
-            if (bloqueioLeitura) {
-                return; // Se estiver travado, ignora essa leitura
-            }
+        function onScan(decodedText) {
+            if(bloqueio) return;
+            bloqueio = true;
 
             try {
-                // 1. Trava o sistema
-                bloqueioLeitura = true;
+                // Toca som de confirmação (opcional)
+                // const audio = new Audio('bip.mp3'); audio.play();
+
+                const dados = JSON.parse(decodedText);
+                mostrarFicha(dados);
+
+                // Pausa visual no scanner
+                document.getElementById('reader').style.borderColor = "#14b8a6"; // Verde
                 
-                // 2. Feedback Visual na Câmera (Borda verde pisca)
-                document.getElementById('reader').style.borderColor = "#4ade80"; // Verde
-
-                // 3. Processa Produto
-                const produto = JSON.parse(decodedText);
-                adicionarAoCarrinho(produto);
-
-                console.log(`Produto lido: ${produto.n}`);
-
-                // 4. Destrava após 2.5 segundos (Tempo suficiente para tirar o produto)
-                setTimeout(() => {
-                    bloqueioLeitura = false;
-                    document.getElementById('reader').style.borderColor = "#475569"; // Volta cinza
-                }, 2500);
-
-            } catch (error) {
-                console.error("QR Code inválido para este sistema");
-                bloqueioLeitura = false; // Destrava se der erro
+            } catch(e) {
+                console.log("QR Code inválido ou não é do sistema UPA");
+                bloqueio = false;
             }
         }
 
-        function adicionarAoCarrinho(item) {
-            carrinho.push(item);
-            atualizarTelaVendas();
-        }
-
-        function removerItem(index) {
-            carrinho.splice(index, 1);
-            atualizarTelaVendas();
-        }
-
-        function limparCarrinho() {
-            if(confirm("Tem certeza que deseja apagar tudo?")) {
-                carrinho = [];
-                atualizarTelaVendas();
-            }
-        }
-
-        function atualizarTelaVendas() {
-            const lista = document.getElementById('lista-compras');
-            const totalEl = document.getElementById('total-venda');
+        function mostrarFicha(dados) {
+            // Preenche a ficha
+            document.getElementById('ficha-nome').innerText = dados.n;
+            document.getElementById('ficha-zap').innerText = dados.z;
+            document.getElementById('ficha-zap-link').href = `https://wa.me/55${dados.z.replace(/\D/g,'')}`;
             
-            lista.innerHTML = "";
-            let total = 0;
+            // Ícone Dinâmico
+            const icone = document.getElementById('ficha-icone');
+            if(dados.t === 'Gato') icone.className = "fa-solid fa-cat";
+            else if(dados.t === 'Cão') icone.className = "fa-solid fa-dog";
+            else icone.className = "fa-solid fa-paw";
 
-            if (carrinho.length === 0) {
-                lista.innerHTML = '<p class="text-center text-gray-400 text-sm mt-10 italic">Nenhum produto bipado...</p>';
-            } else {
-                // Desenha a lista de cima para baixo (último item primeiro)
-                carrinho.slice().reverse().forEach((item, indexReal) => {
-                    // Ajuste de índice reverso para deletar corretamente
-                    const indexOriginal = carrinho.length - 1 - indexReal;
-                    
-                    total += parseFloat(item.p);
-                    
-                    lista.innerHTML += `
-                        <div class="flex justify-between items-center bg-slate-100 p-3 rounded mb-2 border-l-4 border-blue-500 animate-pulse-once">
-                            <div>
-                                <p class="font-bold text-slate-800 text-lg leading-none">${item.n}</p>
-                                <p class="text-xs text-gray-500">Cod: Auto</p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="font-bold text-slate-700">R$ ${parseFloat(item.p).toFixed(2)}</span>
-                                <button onclick="removerItem(${indexOriginal})" class="bg-red-100 text-red-600 w-8 h-8 rounded-full font-bold hover:bg-red-200">X</button>
-                            </div>
-                        </div>
-                    `;
-                });
-            }
+            // Troca scanner pela ficha
+            document.getElementById('ficha-paciente').classList.remove('hidden');
+        }
 
-            totalEl.innerText = `R$ ${total.toFixed(2)}`;
+        function resetarLeitura() {
+            document.getElementById('ficha-paciente').classList.add('hidden');
+            document.getElementById('reader').style.borderColor = "#14b8a6";
+            bloqueio = false;
         }
     </script>
 </body>
