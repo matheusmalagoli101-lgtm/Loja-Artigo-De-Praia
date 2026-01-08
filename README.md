@@ -1,2 +1,2 @@
-# Loja-Artigo-De-Praia
-Sistema de estoque e vendas com QR Code
+# CLinica Veterinaria Upa Vet
+Sistema de Clínica
